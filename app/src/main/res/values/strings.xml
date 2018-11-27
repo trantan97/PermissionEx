@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Thư viện ảnh</string>
+    <string name="permission_deny">Không tải được ảnh do không cấp quyền</string>
 </resources>
