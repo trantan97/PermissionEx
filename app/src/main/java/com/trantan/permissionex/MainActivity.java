@@ -1,7 +1,10 @@
 package com.trantan.permissionex;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,9 +37,12 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         requestPermission();
     }
-
-    private void loadData() {
-        mImagePaths = getImagePaths(IMAGE_DIRECTORY_PATH);
+    public static Intent getProfileInten(Context context){
+        Intent intent = new Intent(context,MainActivity.class);
+        return intent;
+    }
+    private void loadData(ArrayList<String> imagePaths) {
+        mImagePaths = imagePaths;
         RecyclerAdapter adapter = new RecyclerAdapter(mImagePaths);
         mRecyclerView.setAdapter(adapter);
     }
@@ -50,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            loadData();
+            new ImagePath().execute(IMAGE_DIRECTORY_PATH);
         }
     }
 
@@ -58,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            loadData();
+            new ImagePath().execute(IMAGE_DIRECTORY_PATH);
         } else {
             Toast.makeText(this, getString(R.string.permission_deny),
                     Toast.LENGTH_SHORT).show();
@@ -78,5 +84,17 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return imagePaths;
+    }
+    class ImagePath extends AsyncTask<String,Void,ArrayList<String>>{
+
+        @Override
+        protected ArrayList<String> doInBackground(String... strings) {
+            return getImagePaths(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> imagePaths) {
+            loadData(imagePaths);
+        }
     }
 }
